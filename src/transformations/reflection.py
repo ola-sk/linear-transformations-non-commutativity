@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def reflection_matrix(axis: int) -> np.ndarray:
+def reflection_about_axis_matrix(axis: int) -> np.ndarray:
     """
     Returns a 3x3 reflection matrix across the specified axis: 0, 1 or 2 index.
 
