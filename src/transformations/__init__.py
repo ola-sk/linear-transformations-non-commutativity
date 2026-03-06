@@ -4,4 +4,5 @@
 from .rotation import rotation_matrix
 from .reflection import reflection_matrix
 from .scaling import scaling_matrix
+from .translation import translation_vector
 
