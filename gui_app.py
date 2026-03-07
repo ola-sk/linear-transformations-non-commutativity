@@ -11,7 +11,6 @@ from linalg_3d.transformations import (
     reflection_about_axis_matrix
 )
 from linalg_3d.figures import fish
-# from linalg_3d.figures import cube as fish
 
 class TransformationApp:
     def __init__(self, root):
