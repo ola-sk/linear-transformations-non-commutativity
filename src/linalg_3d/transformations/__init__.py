@@ -1,5 +1,8 @@
 from .rotation import rotation_matrix
-from .reflection import reflection_about_axis_matrix
+from .reflection import (
+    reflection_about_axis_matrix,
+    reflection_about_plane
+)
 from .scaling import scaling_matrix
 from .translation import translation_vector
 from .shearing import (
@@ -12,6 +15,7 @@ from .shearing import (
 __all__ = [
     "rotation_matrix",
     "reflection_about_axis_matrix",
+    "reflection_about_plane",
     "scaling_matrix",
     "translation_vector",
     "shearing_matrix",

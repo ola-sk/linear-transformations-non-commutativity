@@ -33,3 +33,14 @@ def reflection_about_axis_matrix(axis: int) -> np.ndarray:
     if axis == 2:
         return np.array([[-1, 0, 0], [0, -1, 0], [0, 0, 1]])
     raise ValueError("axis must be 0, 1 or 2.")
+
+
+def reflection_about_plane(dim0: int, dim1: int) -> np.ndarray:
+    if dim0 == 0 and dim1 == 1:
+        return np.array([[1, 0, 0], [0, 1, 0], [0, 0, -1]])
+    if dim0 == 0 and dim1 == 2:
+        return np.array([[1, 0, 0], [0, -1, 0], [0, 0, 1]])
+    if dim0 == 1 and dim1 == 2:
+        return np.array([[-1, 0, 0], [0, 1, 0], [0, 0, 1]])
+    raise ValueError("dim0 and dim1 must be different and in [0, 1, 2]")
+
