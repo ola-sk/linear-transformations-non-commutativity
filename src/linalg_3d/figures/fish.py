@@ -13,7 +13,7 @@ from linalg_3d import Vector3D
 from linalg_3d import LineSegment
 from linalg_3d.transformations import rotation_matrix
 
-def cube(size: float = 1.0) -> list[LineSegment]:
+def fish(size: float = 1.0) -> list[LineSegment]:
     """
     Generates the edges of a cube centered at the origin.
 
@@ -37,6 +37,7 @@ def cube(size: float = 1.0) -> list[LineSegment]:
     half = size / 2
     bottom_right = Vector3D([half, -half, half])
     top_right = bottom_right + Vector3D([0, size, 0])
+
     front_right_edge = LineSegment(
         bottom_right,
         top_right
@@ -46,12 +47,9 @@ def cube(size: float = 1.0) -> list[LineSegment]:
         front_right_edge.transform(rotation_matrix(np.pi / 2, 0, 1)),
         front_right_edge.transform(rotation_matrix(np.pi, 0, 1)),
         front_right_edge.transform(rotation_matrix(3 * np.pi / 2, 0, 1))
-                             ]
-    back_face = [
-        edge.transform(rotation_matrix(np.pi, 1, 2)) for edge in front_face
     ]
-    side_edges = [
+    side_face = [
         edge.transform(rotation_matrix(np.pi / 2, 1, 2)) for edge in front_face
     ]
-    cube_edges = front_face + back_face + side_edges
+    cube_edges = front_face + side_face
     return cube_edges

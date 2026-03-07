@@ -10,7 +10,7 @@ from linalg_3d.transformations import (
     shearing_matrix,
     reflection_about_axis_matrix
 )
-from linalg_3d.figures.cube import cube
+from linalg_3d.figures.cube import fish
 
 class TransformationApp:
     def __init__(self, root):
@@ -188,7 +188,7 @@ class TransformationApp:
 
     def init_plots(self):
         # Create the original cube and store it
-        self.original_segments = cube(2.0)
+        self.original_segments = fish(2.0)
         # Current state for each plot (start with original)
         self.current_segments_AB = list(self.original_segments)
         self.current_segments_BA = list(self.original_segments)

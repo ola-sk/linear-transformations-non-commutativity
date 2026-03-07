@@ -7,3 +7,5 @@ therefore, some figures may have colour information encoded
 directly in and may differ in the way they need to be "drawn" on the plot.
 """
 
+from .fish import fish
+
