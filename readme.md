@@ -48,6 +48,14 @@ python -m unittest discover -s tests -t .
 python performance_test.py
 ```
 
+## App
+
+Run the interactive visualization:
+
+```powershell
+python gui_app.py
+```
+
 ## Notes
 
 The reusable math library lives in `src/linalg_3d/` and is installed as an
