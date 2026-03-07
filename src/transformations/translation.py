@@ -1,6 +1,6 @@
 import numpy as np
 
-from ..Vector3D import Vector3D
+from Vector3D import Vector3D
 
 
 def translation_vector(dim0: float = 0.0, dim1: float = 0.0, dim2: float = 0.0) -> np.ndarray:
