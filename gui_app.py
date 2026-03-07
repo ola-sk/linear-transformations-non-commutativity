@@ -3,17 +3,14 @@ from tkinter import ttk, messagebox
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from mpl_toolkits.mplot3d import Axes3D
 
-import linalg_3d
-from linalg_3d.vector3d import Vector3D
-from linalg_3d.line_segment import LineSegment
 from linalg_3d.transformations import (
     rotation_matrix,
     scaling_matrix,
     shearing_matrix,
     reflection_about_axis_matrix
 )
+from linalg_3d.figures.cube import cube
 
 class TransformationApp:
     def __init__(self, root):
@@ -38,16 +35,24 @@ class TransformationApp:
         # Action Buttons
         btn_frame = ttk.Frame(controls_frame)
         btn_frame.pack(fill=tk.X, pady=20)
-        ttk.Button(btn_frame, text="Apply Transformations", command=self.update_plots).pack(fill=tk.X)
+        ttk.Button(btn_frame, text="Apply Transformations", command=self.apply_transformations).pack(fill=tk.X)
         ttk.Button(btn_frame, text="Reset View", command=self.reset_view).pack(fill=tk.X, pady=5)
+        ttk.Button(btn_frame, text="Reset Demo", command=self.reset_demo).pack(fill=tk.X, pady=5)
+
+        # Transformation History
+        history_label = ttk.LabelFrame(controls_frame, text="Transformation History")
+        history_label.pack(fill=tk.BOTH, expand=True, padx=5, pady=10)
+
+        self.history_listbox = tk.Listbox(history_label, font=("Arial", 8))
+        self.history_listbox.pack(fill=tk.BOTH, expand=True)
 
         # Plots Frame (Right)
         plots_frame = ttk.Frame(main_frame)
         plots_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
 
         self.fig = plt.Figure(figsize=(10, 5), dpi=100)
-        self.ax1 = self.fig.add_subplot(121, projection='3d')
-        self.ax2 = self.fig.add_subplot(122, projection='3d')
+        self.ax1 = self.fig.add_subplot(121, projection='3d', proj_type='ortho')
+        self.ax2 = self.fig.add_subplot(122, projection='3d', proj_type='ortho')
 
         self.canvas = FigureCanvasTkAgg(self.fig, master=plots_frame)
         self.canvas.draw()
@@ -66,9 +71,13 @@ class TransformationApp:
 
         # Type selection
         ttk.Label(group, text="Type:").pack(anchor=tk.W)
-        type_var = tk.StringVar(value="Rotation")
-        type_cb = ttk.Combobox(group, textvariable=type_var, state="readonly",
-                               values=["Rotation", "Scaling", "Shear", "Reflection"])
+        type_var = tk.StringVar(value="None (Identity)")
+        type_cb = ttk.Combobox(
+            group,
+            textvariable=type_var,
+            state="readonly",
+            values=["None (Identity)", "Rotation", "Scaling", "Shear", "Reflection"]
+        )
         type_cb.pack(fill=tk.X, pady=2)
         setattr(self, f"{prefix}_type", type_var)
 
@@ -111,7 +120,11 @@ class TransformationApp:
             else:
                 frame.pack_forget()
 
-        if t_type == "Rotation":
+        if t_type == "None (Identity)":
+            set_row(0, "", 0, False)
+            set_row(1, "", 0, False)
+            set_row(2, "", 0, False)
+        elif t_type == "Rotation":
             set_row(0, "Angle (deg):", 45.0)
             set_row(1, "Axis 1 (0,1,2):", 0) # dim0
             set_row(2, "Axis 2 (0,1,2):", 1) # dim1
@@ -154,37 +167,41 @@ class TransformationApp:
 
         return np.eye(3)
 
-    def init_plots(self):
-        # Create a sample cube
-        self.original_segments = self.create_cube()
-        self.update_plots()
+    def _describe_transform(self, prefix):
+        """Return a short human-readable description of the current transform settings."""
+        t_type = getattr(self, f"{prefix}_type").get()
+        vars = getattr(self, f"{prefix}_param_vars")
+        values = [v[2].get() for v in vars]
+        axis_names = {0: "X", 1: "Y", 2: "Z"}
 
-    def create_cube(self):
-        # Define 12 edges of a cube centered at origin
-        points = [
-            Vector3D([1, 1, 1]), Vector3D([1, 1, -1]),
-            Vector3D([1, -1, 1]), Vector3D([1, -1, -1]),
-            Vector3D([-1, 1, 1]), Vector3D([-1, 1, -1]),
-            Vector3D([-1, -1, 1]), Vector3D([-1, -1, -1])
-        ]
-        segments = []
-        # Connect appropriately
-        # Edges along x
-        segments.append(LineSegment(points[0], points[4]))
-        segments.append(LineSegment(points[1], points[5]))
-        segments.append(LineSegment(points[2], points[6]))
-        segments.append(LineSegment(points[3], points[7]))
-        # Edges along y
-        segments.append(LineSegment(points[0], points[2]))
-        segments.append(LineSegment(points[1], points[3]))
-        segments.append(LineSegment(points[4], points[6]))
-        segments.append(LineSegment(points[5], points[7]))
-        # Edges along z
-        segments.append(LineSegment(points[0], points[1]))
-        segments.append(LineSegment(points[2], points[3]))
-        segments.append(LineSegment(points[4], points[5]))
-        segments.append(LineSegment(points[6], points[7]))
-        return segments
+        if t_type == "None (Identity)":
+            return "Identity"
+        elif t_type == "Rotation":
+            return f"Rot({values[0]}°, {axis_names.get(int(values[1]),'?')}-{axis_names.get(int(values[2]),'?')})"
+        elif t_type == "Scaling":
+            return f"Scale({values[0]}, {values[1]}, {values[2]})"
+        elif t_type == "Shear":
+            return f"Shear({axis_names.get(int(values[0]),'?')}->{axis_names.get(int(values[1]),'?')}, {values[2]})"
+        elif t_type == "Reflection":
+            return f"Reflect({axis_names.get(int(values[0]),'?')})"
+        return t_type
+
+    def init_plots(self):
+        # Create the original cube and store it
+        self.original_segments = cube(2.0)
+        # Current state for each plot (start with original)
+        self.current_segments_AB = list(self.original_segments)
+        self.current_segments_BA = list(self.original_segments)
+        # History tracking
+        self.history = []
+        # Show the original figure without any transformation
+        self._draw_plots()
+
+    def _draw_plots(self):
+        """Redraw both plots using the current segment state."""
+        self.plot_segments(self.ax1, self.current_segments_AB, 'purple', "Order: A then B (B@A)")
+        self.plot_segments(self.ax2, self.current_segments_BA, 'orange', "Order: B then A (A@B)")
+        self.canvas.draw()
 
     def plot_segments(self, ax, segments, color='b', title=""):
         ax.clear()
@@ -200,10 +217,15 @@ class TransformationApp:
 
         for seg in segments:
             # seg.start and seg.end are Vector3D (ndarray)
+            print(f"in gui: ", seg)
             xs = [seg.start[0], seg.end[0]]
             ys = [seg.start[1], seg.end[1]]
             zs = [seg.start[2], seg.end[2]]
-            ax.plot(xs, ys, zs, color=color)
+            ax.plot3D(xs, ys, zs, color=color)
+
+            # Draw dot at end point
+            ax.scatter(seg.start[0], seg.start[1], seg.start[2], color='yellow', s=15)
+            ax.scatter(seg.end[0], seg.end[1], seg.end[2], color='blue', s=15)
 
         # Set standardized limits
         limit = 3
@@ -211,26 +233,36 @@ class TransformationApp:
         ax.set_ylim(-limit, limit)
         ax.set_zlim(-limit, limit)
 
-    def update_plots(self):
+    def apply_transformations(self):
+        """Apply the current A/B transformation pair on top of the previous state."""
         mat_a = self.get_matrix("A")
         mat_b = self.get_matrix("B")
 
-        # Order A -> B => Apply A then B => v' = B(A(v)) = (B @ A) @ v
-        # So Combined Matrix M1 = B @ A
-        mat_AB = mat_b @ mat_a
+        mat_AB = mat_b @ mat_a   # A then B
+        mat_BA = mat_a @ mat_b   # B then A
 
-        # Order B -> A => Apply B then A => v' = A(B(v)) = (A @ B) @ v
-        # Combined Matrix M2 = A @ B
-        mat_BA = mat_a @ mat_b
+        # Transform from current state (cumulative)
+        self.current_segments_AB = [s.transform(mat_AB) for s in self.current_segments_AB]
+        self.current_segments_BA = [s.transform(mat_BA) for s in self.current_segments_BA]
 
-        # Transform segments
-        segs_AB = [s.transform(mat_AB) for s in self.original_segments]
-        segs_BA = [s.transform(mat_BA) for s in self.original_segments]
+        # Record history entry
+        desc_a = self._describe_transform("A")
+        desc_b = self._describe_transform("B")
+        step = len(self.history) + 1
+        entry = f"#{step}  A={desc_a}  B={desc_b}"
+        self.history.append(entry)
+        self.history_listbox.insert(tk.END, entry)
+        self.history_listbox.see(tk.END)
 
-        self.plot_segments(self.ax1, segs_AB, 'purple', "Order: A then B (B@A)")
-        self.plot_segments(self.ax2, segs_BA, 'orange', "Order: B then A (A@B)")
+        self._draw_plots()
 
-        self.canvas.draw()
+    def reset_demo(self):
+        """Reset to the original figure and clear transformation history."""
+        self.current_segments_AB = list(self.original_segments)
+        self.current_segments_BA = list(self.original_segments)
+        self.history.clear()
+        self.history_listbox.delete(0, tk.END)
+        self._draw_plots()
 
     def reset_view(self):
         self.ax1.view_init(elev=30, azim=45)
