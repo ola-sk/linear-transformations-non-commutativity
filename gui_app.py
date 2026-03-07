@@ -32,6 +32,13 @@ class TransformationApp:
         # Transformation B Controls
         self.create_transform_group(controls_frame, "Transformation B", "B")
 
+        # Set meaningful defaults for Transformation A (Rotation -45° in Y-Z plane)
+        self.A_type.set("Rotation")
+        self.update_inputs("A")
+        self.A_param_vars[0][2].set(-45.0)   # angle
+        self.A_param_vars[1][2].set(1)        # dim0 = Y
+        self.A_param_vars[2][2].set(2)        # dim1 = Z
+
         # Action Buttons
         btn_frame = ttk.Frame(controls_frame)
         btn_frame.pack(fill=tk.X, pady=20)
