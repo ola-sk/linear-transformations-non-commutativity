@@ -9,3 +9,4 @@ directly in and may differ in the way they need to be "drawn" on the plot.
 
 from .fish import fish
 from .cube import cube
+from .star import star
