@@ -1,6 +1,3 @@
-# This file marks the 'transformations' directory as a Python package.
-
-# The transformations package contains modular (atomic) transformation matrices for linear algebra operations.
 from .rotation import rotation_matrix
 from .reflection import reflection_about_axis_matrix
 from .scaling import scaling_matrix
@@ -11,3 +8,15 @@ from .shearing import (
     shear_parallel_to_xz_plane,
     shear_parallel_to_yz_plane,
 )
+
+__all__ = [
+    "rotation_matrix",
+    "reflection_about_axis_matrix",
+    "scaling_matrix",
+    "translation_vector",
+    "shearing_matrix",
+    "shear_parallel_to_xy_plane",
+    "shear_parallel_to_xz_plane",
+    "shear_parallel_to_yz_plane",
+]
+

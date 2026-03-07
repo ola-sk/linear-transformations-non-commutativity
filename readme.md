@@ -1,16 +1,56 @@
 # Illustrating the non-commutativity property of matrix multiplication: chaining linear transformations
 
-This educational demonstration focuses on compound linear transformations on vectors in a vector space and contrasting the result of same transformations applied in reverse order.
+This educational project demonstrates compound linear transformations on vectors and compares applying transformations in order `A → B` versus `B → A`.
 
-To contrast the results, we have exact copies of the initial vector space before the transformations graphed and user input to transform the vectors on the graphs.
-After applying user input:
+## Project layout
 
-The first graph shows: 
-- the first linear transformation **A** applied on the vector space,
-- the second transformation **B** is a linear transformation applied on vectors already transformed with the first transformation A
+```
+linear_algebra/          ← project root (your application lives here)
+├── pyproject.toml       ← packaging metadata
+├── requirements.txt
+├── performance_test.py  ← benchmark script
+├── src/
+│   └── linalg_3d/       ← installable library package
+│       ├── __init__.py
+│       ├── vector3d.py
+│       ├── line_segment.py
+│       └── transformations/
+│           ├── __init__.py
+│           ├── rotation.py
+│           ├── reflection.py
+│           ├── scaling.py
+│           ├── shearing.py
+│           └── translation.py
+└── tests/
+    ├── test_rotation.py
+    ├── test_reflection.py
+    ├── test_scaling.py
+    ├── test_shearing.py
+    └── test_translation.py
+```
 
-On the second graph we have the transformations A and B applied in reverse order:
-- apply the transformation **B** first, and
-- apply the transformation **A**
+## Setup
 
-This order is a reverse of the original order.
+```powershell
+python -m pip install -r requirements.txt
+python -m pip install -e .
+```
+
+## Run tests
+
+```powershell
+python -m unittest discover -s tests -t .
+```
+
+## Run benchmark
+
+```powershell
+python performance_test.py
+```
+
+## Notes
+
+The reusable math library lives in `src/linalg_3d/` and is installed as an
+editable package via `pip install -e .`. Application code (Tkinter UI, etc.)
+can be placed at the project root and simply `import linalg_3d` — no
+`sys.path` hacks needed.

@@ -1,5 +1,7 @@
 import numpy as np
-from Vector3D import Vector3D
+
+from .vector3d import Vector3D
+
 
 class LineSegment:
     start: Vector3D
@@ -32,7 +34,7 @@ class LineSegment:
         is performed using matrix multiplication for both the start and end points of the
         line segment, treating them as row vectors.
 
-        :param matrix: A 2D NumPy array representing the transformation matrix to apply. The
+        :param matrix: A 2D, 3x3 NumPy array representing the transformation matrix to apply. The
             matrix should be compatible for transformation with the points of the line segment.
         :return: A new instance of the `LineSegment` class with the transformed start and end
             points.
@@ -45,3 +47,6 @@ class LineSegment:
 
     def interpolate(self, num_points: int = 100) -> np.ndarray:
         return np.linspace(self.start, self.end, num_points)
+
+    def translate(self, translation: Vector3D) -> 'LineSegment':
+        return LineSegment(self.start + translation, self.end + translation)
