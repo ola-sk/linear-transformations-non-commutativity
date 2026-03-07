@@ -224,8 +224,6 @@ class TransformationApp:
         ax.quiver(0, 0, 0, 0, 0, 1, color='b', length=1.5, normalize=True)
 
         for seg in segments:
-            # seg.start and seg.end are Vector3D (ndarray)
-            print(f"in gui: ", seg)
             xs = [seg.start[0], seg.end[0]]
             ys = [seg.start[1], seg.end[1]]
             zs = [seg.start[2], seg.end[2]]

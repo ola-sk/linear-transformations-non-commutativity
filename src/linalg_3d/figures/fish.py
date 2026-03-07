@@ -1,50 +1,34 @@
 """
-This module provides functionality for generating a cube's edges as a set of
-line segments in 3D space.
+This module provides functionality for generating a stylised fish as a set
+of line segments in 3D space.
 
-The cube is centered at the origin, and its size is adjustable through a
-parameter that specifies the edge length. It leverages the `Vector3D`
-and `LineSegment` classes for representing points and edges in 3D, and
-uses rotation transformations to create and position the edges.
+The top half of the fish is defined manually from mouth to tail, and the
+bottom half is produced by reflecting those segments across the X-axis.
+An eye point is included as a degenerate (zero-length) line segment.
 """
 
-import numpy as np
 from linalg_3d import Vector3D
 from linalg_3d import LineSegment
-from linalg_3d.transformations import rotation_matrix, reflection_about_plane
+from linalg_3d.transformations import reflection_about_plane
+
 
 def fish(size: float = 1.0) -> list[LineSegment]:
     """
-    Generates the edges of a cube centered at the origin.
-
-    This function computes the edges of a cube by defining the front face edges,
-    transforming them to generate the back face, and then calculating the side
-    edges. The resulting edges are represented as instances of `LineSegment` objects.
-    The cube is centered at the origin, and its size is determined by the `size`
-    parameter, where each edge is of length `size` units.
+    Generate the edges of a stylised fish centred near the origin.
 
     Parameters
     ----------
     size : float, optional
-        The length of the edges of the cube. Defaults to 1.0.
+        Overall scale factor for the fish.  Defaults to 1.0.
 
     Returns
     -------
-    list of LineSegment
-        A list of `LineSegment` objects representing the edges of the cube. Each
-        edge connects two vertices of the cube.
+    list[LineSegment]
+        Line segments forming the fish outline (top half, bottom half,
+        and an eye).
     """
-    half = size / 2
-
-    bottom_right = Vector3D([half, -half, half])
-    top_right = bottom_right + Vector3D([0, size, 0])
-
-    front_right_edge = LineSegment(
-        bottom_right,
-        top_right
-    )
-    # draw in the XY plane assuming Z=half; the front (head) of the
-    # fish should be in Y-positive direction.
+    # Draw in the XY plane assuming Z=half; the front (head) of the
+    # fish faces the Y-positive direction.
     mouth = Vector3D([0, size, size])
     topfront_head = mouth + Vector3D([size/2, -size/3, 0])
     topback_head = mouth + Vector3D([8*size/9, -size, 0])
