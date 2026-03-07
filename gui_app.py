@@ -10,7 +10,7 @@ from linalg_3d.transformations import (
     shearing_matrix,
     reflection_about_axis_matrix
 )
-from linalg_3d.figures.cube import fish
+from linalg_3d.figures import fish
 
 class TransformationApp:
     def __init__(self, root):
